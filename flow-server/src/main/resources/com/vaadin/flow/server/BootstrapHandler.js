@@ -1,130 +1,138 @@
 (function() {
-  var apps = {};
-  var widgetsets = {};
+	var apps = {};
 
+	var log;
+	if (typeof console === undefined || !window.location.search.match(/[&?]debug(&|$)/)) {
+		/* If no console.log present, just use a no-op */
+		log = function() {};
+	} else if (typeof console.log === "function") {
+		/* If it's a function, use it with apply */
+		log = function() {
+			console.log.apply(console, arguments);
+		};
+	} else {
+		/* In IE, its a native function for which apply is not defined, but it works
+		 without a proper 'this' reference */
+		log = console.log;
+	}
+	
+	var isInitializedInDom = function(appId) {
+		var appDiv = document.getElementById(appId);
+		if (!appDiv) {
+			return false;
+		}
+		for ( var i = 0; i < appDiv.childElementCount; i++) {
+			var className = appDiv.childNodes[i].className;
+			/* If the app div contains a child with the class
+			"v-app-loading" we have only received the HTML
+			but not yet started the widget set
+			(UIConnector removes the v-app-loading div). */
+			if (className && className.indexOf("v-app-loading") != -1) {
+				return false;
+			}
+		}
+		return true;
+	};
+	
+	/* 
+	 * Needed for Testbench compatibility, but prevents any Vaadin 7 app from
+	 * bootstrapping unless the legacy vaadinBootstrap.js file is loaded before
+	 * this script.
+	 */
+    window.Vaadin = window.Vaadin || {};
+    window.Vaadin.Flow = window.Vaadin.Flow || {};
 
-  var log;
-  if (typeof console === undefined || !window.location.search.match(/[&?]debug(&|$)/)) {
-    /* If no console.log present, just use a no-op */
-    log = function() {};
-  } else if (typeof console.log === "function") {
-    /* If it's a function, use it with apply */
-    log = function() {
-      console.log.apply(console, arguments);
-    };
-  } else {
-    /* In IE, its a native function for which apply is not defined, but it works
-     without a proper 'this' reference */
-    log = console.log;
-  }
-  
-  var isInitializedInDom = function(appId) {
-    var appDiv = document.getElementById(appId);
-    if (!appDiv) {
-      return false;
-    }
-    for ( var i = 0; i < appDiv.childElementCount; i++) {
-      var className = appDiv.childNodes[i].className;
-      /* If the app div contains a child with the class
-      "v-app-loading" we have only received the HTML
-      but not yet started the widget set
-      (UIConnector removes the v-app-loading div). */
-      if (className && className.indexOf("v-app-loading") != -1) {
-        return false;
-      }
-    }
-    return true;
-  };
-  
-  /* 
-   * Needed for Testbench compatibility, but prevents any Vaadin 7 app from
-   * bootstrapping unless the legacy vaadinBootstrap.js file is loaded before
-   * this script.
-   */
-  window.Vaadin = window.Vaadin || {};
-  window.Vaadin.Flow = window.Vaadin.Flow || {};
+    if (!window.Vaadin.Flow.clients) {
+        window.Vaadin.Flow.clients = {};
 
-  if (!window.Vaadin.Flow.clients) {
-    window.Vaadin.Flow.clients = {};
+        window.Vaadin.Flow.pendingStartup = {};
+        window.Vaadin.Flow.initApplication = function(appId, config) {
+			var testbenchId = appId.replace(/-\d+$/, '');
 
-    window.Vaadin.Flow.initApplication = function(appId, config) {
-      var testbenchId = appId.replace(/-\d+$/, '');
-      
-      if (apps[appId]) {
-        if (window.Vaadin && window.Vaadin.Flow && window.Vaadin.Flow.clients && window.Vaadin.Flow.clients[testbenchId] && window.Vaadin.Flow.clients[testbenchId].initializing) {
-          throw "Application " + appId + " is already being initialized";
-        }
-        if (isInitializedInDom(appId)) {
-          throw "Application " + appId + " already initialized";
-        }
-      }
-  
-      log("init application", appId, config);
-      
-      window.Vaadin.Flow.clients[testbenchId] = {
-          isActive: function() {
-            return true;
-          },
-          initializing: true,
-          productionMode: mode
-      };
-      
-      var getConfig = function(name) {
-        var value = config[name];
-        return value;
-      };
-      
-      /* Export public data */
-      var app = {
-        getConfig: getConfig
-      };
-      apps[appId] = app;
-      
-      if (!window.name) {
-        window.name =  appId + '-' + Math.random();
-      }
-  
-      var widgetset = "client";
-      widgetsets[widgetset] = {
-          pendingApps: []
-        };
-      if (widgetsets[widgetset].callback) {
-        log("Starting from bootstrap", appId);
-        widgetsets[widgetset].callback(appId);
-      }  else {
-        log("Setting pending startup", appId);
-        widgetsets[widgetset].pendingApps.push(appId);
-      }
-  
-      return app;
-    };
-    window.Vaadin.Flow.getAppIds = function() {
-      var ids = [ ];
-      for (var id in apps) {
-        if (apps.hasOwnProperty(id)) {
-          ids.push(id);
-        }
-      }
-      return ids;
-    };
-    window.Vaadin.Flow.getApp = function(appId) {
-      return apps[appId];
-    };
-    window.Vaadin.Flow.registerWidgetset = function(widgetset, callback) {
-      log("Widgetset registered", widgetset);
-      var ws = widgetsets[widgetset];
-      if (ws && ws.pendingApps) {
-        ws.callback = callback;
-        for(var i = 0; i < ws.pendingApps.length; i++) {
-          var appId = ws.pendingApps[i];
-          log("Starting from register widgetset", appId);
-          callback(appId);
-        }
-        ws.pendingApps = null;
-      }
-    };
-    window.Vaadin.Flow.getBrowserDetailsParameters = function() {
-      var params = {  };
+			if (apps[appId]) {
+				if (window.Vaadin && window.Vaadin.Flow && window.Vaadin.Flow.clients && window.Vaadin.Flow.clients[testbenchId] && window.Vaadin.Flow.clients[testbenchId].initializing) {
+					throw "Application " + appId + " is already being initialized";
+				}
+				if (isInitializedInDom(appId)) {
+					throw "Application " + appId + " already initialized";
+				}
+			}
+
+			log("init application", appId, config);
+
+			window.Vaadin.Flow.clients[testbenchId] = {
+					isActive: function() {
+						return true;
+					},
+					initializing: true
+			};
+
+			var getConfig = function(name) {
+				var value = config[name];
+				return value;
+			};
+
+			/* Export public data */
+			var app = {
+				getConfig: getConfig
+			};
+			apps[appId] = app;
+
+			if (!window.name) {
+				window.name =  appId + '-' + Math.random();
+			}
+
+			var widgetset = "client";
+			if (!window.Vaadin.Flow.pendingStartup[widgetset]) {
+				window.Vaadin.Flow.pendingStartup[widgetset] = {
+					pendingApps: []
+				};
+			}
+			if (window.Vaadin.Flow.pendingStartup[widgetset].callback) {
+				log("Starting from bootstrap", appId);
+				window.Vaadin.Flow.pendingStartup[widgetset].callback(appId);
+			}  else {
+				log("Setting pending startup", appId);
+				window.Vaadin.Flow.pendingStartup[widgetset].pendingApps.push(appId);
+			}
+
+			return app;
+		};
+		window.Vaadin.Flow.getAppIds = function() {
+			var ids = [ ];
+			for (var id in apps) {
+				if (apps.hasOwnProperty(id)) {
+					ids.push(id);
+				}
+			}
+			return ids;
+		};
+		window.Vaadin.Flow.getApp = function(appId) {
+			return apps[appId];
+		};
+		window.Vaadin.Flow.registerWidgetset = function(widgetset, callback) {
+			log("Widgetset registered", widgetset);
+			if (!window.Vaadin.Flow.pendingStartup[widgetset]) {
+				window.Vaadin.Flow.pendingStartup[widgetset] = {
+					pendingApps: [],
+					callback: callback
+				};
+				/* Callback will be invoked when initApp is called */
+				return;
+			}
+			var ws = window.Vaadin.Flow.pendingStartup[widgetset];
+			if (ws.pendingApps) {
+				ws.callback = callback;
+				for(var i = 0; i < ws.pendingApps.length; i++) {
+					var appId = ws.pendingApps[i];
+					log("Starting from register widgetset", appId);
+					callback(appId);
+				}
+				ws.pendingApps = null;
+			}
+		};
+		window.Vaadin.Flow.getBrowserDetailsParameters = function() {
+            var params = {  };
 
       /* Screen height and width */
       params['v-sh'] = window.screen.height;
@@ -207,11 +215,11 @@
       return params;
     };
   }
-  
+
   log('Flow bootstrap loaded');
-  
+
   {{GWT_STAT_EVENTS}}
-  
+
   var uidl = {{INITIAL_UIDL}};
   var config = {{CONFIG_JSON}};
   var mode = {{PRODUCTION_MODE}};
