@@ -6,7 +6,9 @@ import java.io.PrintWriter;
 import javax.portlet.PortletContext;
 import javax.portlet.PortletException;
 import javax.portlet.PortletResponse;
+import javax.portlet.RenderRequest;
 import javax.portlet.RenderResponse;
+import javax.portlet.ResourceURL;
 
 import com.vaadin.flow.server.SynchronizedRequestHandler;
 import com.vaadin.flow.server.VaadinRequest;
@@ -15,6 +17,12 @@ import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.communication.WebComponentProvider;
 
 public class PortletBootstrapHandler extends SynchronizedRequestHandler {
+
+    @Override
+    protected boolean canHandleRequest(VaadinRequest request) {
+        return ((VaadinPortletRequest) request)
+                .getPortletRequest() instanceof RenderRequest;
+    }
 
     @Override
     public boolean synchronizedHandleRequest(VaadinSession session,
@@ -35,7 +43,9 @@ public class PortletBootstrapHandler extends SynchronizedRequestHandler {
         String scriptUrl = (String) portletContext
                 .getAttribute(WebComponentProvider.class.getName());
         if (scriptUrl == null) {
-            scriptUrl = ((RenderResponse) resp).createResourceURL().toString();
+            ResourceURL url = ((RenderResponse) resp).createResourceURL();
+            url.setResourceID("/web-component/" + tag + ".js");
+            scriptUrl = url.toString();
             portletContext.setAttribute(WebComponentProvider.class.getName(),
                     scriptUrl);
         }
