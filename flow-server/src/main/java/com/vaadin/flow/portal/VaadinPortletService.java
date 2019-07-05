@@ -320,8 +320,7 @@ public class VaadinPortletService extends VaadinService {
 
     @Override
     public String getContextRootRelativePath(VaadinRequest request) {
-        // TODO Auto-generated method stub
-        return null;
+        return "/";
     }
 
     @Override
