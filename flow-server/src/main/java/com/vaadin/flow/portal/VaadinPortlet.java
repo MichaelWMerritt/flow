@@ -41,6 +41,9 @@ import com.vaadin.flow.server.webcomponent.WebComponentConfigurationRegistry;
 public class VaadinPortlet extends GenericPortlet {
 
     private VaadinPortletService vaadinService;
+    private String webComponentProviderURL;
+    private String webComponentBootstrapHandlerURL;
+    private String webComponentUIDLRequestHandlerURL;
 
     @Override
     public void init(PortletConfig config) throws PortletException {
@@ -251,4 +254,27 @@ public class VaadinPortlet extends GenericPortlet {
         return registry.getConfigurations().iterator().next().getTag();
     }
 
+    public void setWebComponentProviderURL(String url) {
+        webComponentProviderURL = url;
+    }
+
+    public String getWebComponentProviderURL() {
+        return webComponentProviderURL;
+    }
+
+    public void setWebComponentBootstrapHandlerURL(String url) {
+        webComponentBootstrapHandlerURL = url;
+    }
+
+    public String getWebComponentBootstrapHandlerURL() {
+        return webComponentBootstrapHandlerURL;
+    }
+
+    public void setWebComponentUIDLRequestHandlerURL(String url) {
+        webComponentUIDLRequestHandlerURL = url;
+    }
+
+    public String getWebComponentUIDLRequestHandlerURL() {
+        return webComponentUIDLRequestHandlerURL;
+    }
 }

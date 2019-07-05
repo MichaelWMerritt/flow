@@ -43,11 +43,19 @@ public class PortletBootstrapHandler extends SynchronizedRequestHandler {
         String scriptUrl = (String) portletContext
                 .getAttribute(WebComponentProvider.class.getName());
         if (scriptUrl == null) {
-            ResourceURL url = ((RenderResponse) resp).createResourceURL();
+            RenderResponse renderResponse = (RenderResponse) resp;
+            ResourceURL url = renderResponse.createResourceURL();
             url.setResourceID("/web-component/" + tag + ".js");
             scriptUrl = url.toString();
-            portletContext.setAttribute(WebComponentProvider.class.getName(),
-                    scriptUrl);
+            portlet.setWebComponentProviderURL(url.toString());
+
+            url = renderResponse.createResourceURL();
+            url.setResourceID("/web-component/web-component-ui.js");
+            portlet.setWebComponentBootstrapHandlerURL(url.toString());
+
+            url = renderResponse.createResourceURL();
+            url.setResourceID("/uidl");
+            portlet.setWebComponentUIDLRequestHandlerURL(url.toString());
         }
         writer.write("<script src='" + scriptUrl + "'></script>");
         writer.write("<" + tag + "></" + tag + ">");

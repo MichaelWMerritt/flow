@@ -58,6 +58,9 @@ public class VaadinPortletService extends VaadinService {
             throws ServiceException {
         List<RequestHandler> handlers = super.createRequestHandlers();
         handlers.add(new PortletBootstrapHandler());
+        handlers.add(new PortletWebComponentProvider());
+        handlers.add(new PortletWebComponentBootstrapHandler());
+        handlers.add(new PortletUidlRequestHandler());
 
         // handlers.add(new PortletUIInitHandler());
         // handlers.add(new PortletListenerNotifier());
@@ -280,8 +283,7 @@ public class VaadinPortletService extends VaadinService {
             VaadinResponse response) {
         // TODO Figure out a better way to deal with
         // SessionExpiredExceptions
-        LoggerFactory.getLogger(getClass())
-                .debug("A user session has expired");
+        LoggerFactory.getLogger(getClass()).debug("A user session has expired");
     }
 
     private WrappedPortletSession getWrappedPortletSession(

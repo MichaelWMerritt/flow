@@ -15,7 +15,8 @@
  */
 package com.vaadin.flow.server.communication;
 
-import javax.servlet.http.HttpServletResponse;
+import static com.vaadin.flow.shared.ApplicationConstants.CONTENT_TYPE_TEXT_HTML_UTF_8;
+import static com.vaadin.flow.shared.ApplicationConstants.CONTENT_TYPE_TEXT_JAVASCRIPT_UTF_8;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -25,6 +26,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.LoggerFactory;
@@ -39,9 +42,6 @@ import com.vaadin.flow.server.VaadinResponse;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.webcomponent.WebComponentConfigurationRegistry;
 import com.vaadin.flow.server.webcomponent.WebComponentGenerator;
-
-import static com.vaadin.flow.shared.ApplicationConstants.CONTENT_TYPE_TEXT_HTML_UTF_8;
-import static com.vaadin.flow.shared.ApplicationConstants.CONTENT_TYPE_TEXT_JAVASCRIPT_UTF_8;
 
 /**
  * Request handler that supplies the script/html of the web component matching
@@ -146,7 +146,7 @@ public class WebComponentProvider extends SynchronizedRequestHandler {
             } else {
                 response.setContentType(CONTENT_TYPE_TEXT_JAVASCRIPT_UTF_8);
                 generated = cache.computeIfAbsent(componentInfo.tag,
-                        moduleTag -> generateNPMResponse(
+                        moduleTag -> generateNPMResponse(request,
                                 webComponentConfiguration.getTag()));
             }
 
@@ -216,17 +216,22 @@ public class WebComponentProvider extends SynchronizedRequestHandler {
                 + ".nextSibling);";
     }
 
-    private String generateNPMResponse(String tagName) {
+    protected String generateNPMResponse(VaadinRequest request,
+            String tagName) {
         // get the running script
         return getThisScript(tagName) + "var scriptUri = thisScript.src;"
                 + "var index = scriptUri.lastIndexOf('" + WEB_COMPONENT_PATH
                 + "');" + "var context = scriptUri.substring(0, index+"
                 + WEB_COMPONENT_PATH.length() + ");"
                 // figure out if we have already bootstrapped Vaadin client & ui
-                + "var bootstrapped = false;"
                 + "var bootstrapAddress=context+'web-component-bootstrap.js';"
                 // add the request address as a url parameter (used to get
                 // service url)
+                + bootstrapNpm();
+    }
+
+    protected String bootstrapNpm() {
+        return "var bootstrapped = false;\n"
                 + "bootstrapAddress+='?url='+bootstrapAddress;"
                 // check if a script with the bootstrap source already exits
                 + "var scripts = document.getElementsByTagName('script');"
@@ -239,6 +244,7 @@ public class WebComponentProvider extends SynchronizedRequestHandler {
                 + "  uiScript.setAttribute('type','text/javascript');"
                 + "  uiScript.setAttribute('src', bootstrapAddress);"
                 + "  document.head.appendChild(uiScript);" + "}";
+
     }
 
     private static String getFrontendPath(VaadinRequest request) {
