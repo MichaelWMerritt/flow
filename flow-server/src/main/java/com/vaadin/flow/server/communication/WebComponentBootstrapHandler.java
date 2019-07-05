@@ -15,6 +15,24 @@
  */
 package com.vaadin.flow.server.communication;
 
+import static com.vaadin.flow.shared.ApplicationConstants.CONTENT_TYPE_TEXT_JAVASCRIPT_UTF_8;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
+import java.lang.annotation.Annotation;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.regex.Pattern;
+
+import org.jsoup.nodes.Attribute;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+
 import com.vaadin.flow.component.PushConfiguration;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.webcomponent.WebComponentUI;
@@ -33,23 +51,6 @@ import com.vaadin.flow.theme.ThemeDefinition;
 import elemental.json.Json;
 import elemental.json.JsonArray;
 import elemental.json.JsonObject;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.lang.annotation.Annotation;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.regex.Pattern;
-
-import static com.vaadin.flow.shared.ApplicationConstants.CONTENT_TYPE_TEXT_JAVASCRIPT_UTF_8;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 /**
@@ -126,15 +127,6 @@ public class WebComponentBootstrapHandler extends BootstrapHandler {
         BootstrapContext context = super.createAndInitUI(WebComponentUI.class,
                 request, response, session);
         JsonObject config = context.getApplicationParameters();
-
-        String requestURL = getRequestUrl(request);
-
-        if(!canHandleRequest(request)) {
-            throw new IllegalStateException("Unexpected request URL '"
-                    + requestURL + "' in the bootstrap handler for web "
-                    + "component UI which should handle path "
-                    + PATH_PATTERN.toString());
-        }
 
         String serviceUrl = getServiceUrl(request);
 
