@@ -326,15 +326,14 @@ public class VaadinPortletService extends VaadinService {
 
     @Override
     public String getMainDivId(VaadinSession session, VaadinRequest request) {
-        // PortletRequest portletRequest = ((VaadinPortletRequest) request)
-        // .getPortletRequest();
+        PortletRequest portletRequest = ((VaadinPortletRequest) request)
+                .getPortletRequest();
         // /*
         // * We need to generate a unique ID because some portals already create
         // a
         // * DIV with the portlet's Window ID as the DOM ID.
         // */
-        // return "v-" + portletRequest.getWindowID();
-        return null;
+        return "v-" + portletRequest.getWindowID();
     }
 
     @Override
