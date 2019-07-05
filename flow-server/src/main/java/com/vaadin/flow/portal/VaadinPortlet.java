@@ -30,6 +30,7 @@ import com.vaadin.flow.portal.impl.VaadinGateInRequest;
 import com.vaadin.flow.portal.impl.VaadinLiferayRequest;
 import com.vaadin.flow.portal.impl.VaadinWebLogicPortalRequest;
 import com.vaadin.flow.portal.impl.VaadinWebSpherePortalRequest;
+import com.vaadin.flow.server.Command;
 import com.vaadin.flow.server.Constants;
 import com.vaadin.flow.server.DefaultDeploymentConfiguration;
 import com.vaadin.flow.server.ServiceException;
@@ -200,8 +201,8 @@ public class VaadinPortlet extends GenericPortlet {
     /**
      * Gets the currently used Vaadin portlet. The current portlet is
      * automatically defined when processing requests related to the service
-     * (see {@link ThreadLocal}) and in {@link VaadinSession#access(Runnable)}
-     * and {@link UI#access(Runnable)}. In other cases, (e.g. from background
+     * (see {@link ThreadLocal}) and in {@link VaadinSession#access(Command)}
+     * and {@link UI#access(Command)}. In other cases, (e.g. from background
      * threads, the current service is not automatically defined.
      *
      * The current portlet is derived from the current service using

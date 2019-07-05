@@ -38,7 +38,6 @@ import javax.portlet.RenderResponse;
 import javax.portlet.ResourceRequest;
 import javax.portlet.ResourceResponse;
 import javax.portlet.StateAwareResponse;
-import javax.servlet.http.HttpSessionBindingListener;
 import javax.xml.namespace.QName;
 
 import com.vaadin.flow.component.UI;
@@ -50,9 +49,6 @@ import com.vaadin.flow.shared.Registration;
 
 /**
  * An implementation of {@link VaadinSession} for JSR-286 portlet environments.
- *
- * This is automatically registered as a {@link HttpSessionBindingListener} when
- * {@link PortletSession#setAttribute()} is called with the context as value.
  *
  * Only the documented parts of this class should be considered as stable public
  * API.
@@ -207,11 +203,7 @@ public class VaadinPortletSession extends VaadinSession {
     }
 
     /**
-     * Listener interface for the various types of JSR-286 portlet requests. The
-     * listener methods are called by the request handler
-     * {@link PortletListenerNotifier} after the session is locked and the
-     * corresponding UI has been found (if already created) but before other
-     * request processing takes place.
+     * Listener interface for the various types of JSR-286 portlet requests.
      *
      * Direct rendering of output is not possible in a portlet listener and the
      * JSR-286 limitations on allowed operations in each phase or portlet

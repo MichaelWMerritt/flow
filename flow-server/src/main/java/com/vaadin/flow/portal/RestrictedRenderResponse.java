@@ -35,8 +35,7 @@ import org.w3c.dom.Element;
 /**
  * Read-only wrapper for a {@link RenderResponse}.
  *
- * Only for use by {@link PortletApplicationContext} and
- * {@link VaadinPortletSession}.
+ * Only for use by {@link VaadinPortletSession}.
  */
 class RestrictedRenderResponse implements RenderResponse, Serializable {
 
