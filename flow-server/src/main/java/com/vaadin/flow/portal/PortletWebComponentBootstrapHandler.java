@@ -12,4 +12,13 @@ public class PortletWebComponentBootstrapHandler
                 .getWebComponentUIDLRequestHandlerURL();
     }
 
+    @Override
+    protected String modifyPath(String path, String basePath) {
+        // FIXME This is a hack to make a single portlet work
+        path = path.replaceFirst("^.VAADIN/", "./VAADIN/");
+        if (path.startsWith("./VAADIN/")) {
+            return "/" + VaadinPortlet.getCurrent().getName() + "/" + path;
+        }
+        return super.modifyPath(path, basePath);
+    }
 }

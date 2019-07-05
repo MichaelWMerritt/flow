@@ -38,7 +38,7 @@ import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.VaadinSession;
 import com.vaadin.flow.server.webcomponent.WebComponentConfigurationRegistry;
 
-public class VaadinPortlet extends GenericPortlet {
+public abstract class VaadinPortlet extends GenericPortlet {
 
     private VaadinPortletService vaadinService;
     private String webComponentProviderURL;
@@ -277,4 +277,6 @@ public class VaadinPortlet extends GenericPortlet {
     public String getWebComponentUIDLRequestHandlerURL() {
         return webComponentUIDLRequestHandlerURL;
     }
+
+    public abstract String getName();
 }
