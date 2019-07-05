@@ -198,6 +198,12 @@ public class ResponseWriter implements Serializable {
      *         the resource, false otherwise
      */
     protected boolean acceptsGzippedResource(HttpServletRequest request) {
+        // FIXME This is disabled to allow testing in Liferay 6.2 which does not
+        // check that a response has already been gzipped
+        if (true) {
+            return false;
+        }
+
         return acceptsEncoding(request, "gzip");
     }
 
