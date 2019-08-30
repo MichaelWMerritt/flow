@@ -25,7 +25,7 @@ document.getElementById("button2").addEventListener('click', async e => {
 
 document.getElementById('button3').addEventListener('click', async e => {
     const route = document.getElementById('routeValue').value;
-    const view = await flow.route({pathname: route});
+    const view = await flow.route.action({pathname: route});
     const div = document.getElementById('div3');
     div.innerHTML = '';
 
